@@ -676,23 +676,22 @@ int adventurerFunc(struct gameState *state){
 	return 0;
 }
 
-int smithyFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
+int smithyFunc(int player, struct gameState *state, int handPos){
 	int i;
 	for (i = 0; i < 3; i++)
 	{
-	  drawCard(currentPlayer, state);
+	  //printf("Drawing card\n");
+	  drawCard(player, state);
+	  //printf("Hand count: %d\n",state->handCount[player]);
 	}
 			
       //discard card from hand
 	  //bug#2
-     //discardCard(handPos, currentPlayer, state, 0);
+     //discardCard(handPos, player, state, 0);
 	 return 0;
 }
 
-int outpostFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
-	currentPlayer=0;
+int outpostFunc(int currentPlayer, struct gameState *state, int handPos){
 	//set outpost flag
       state->outpostPlayed++;
 			
@@ -701,8 +700,7 @@ int outpostFunc(struct gameState *state, int handPos){
       return 0;
 }
 
-int great_hallFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
+int great_hallFunc(int currentPlayer, struct gameState *state, int handPos){
 	//+1 Card
       drawCard(currentPlayer, state);
 			
@@ -714,8 +712,7 @@ int great_hallFunc(struct gameState *state, int handPos){
 	  return 0;
 }
 
-int council_roomFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
+int council_roomFunc(int currentPlayer, struct gameState *state, int handPos){
 	int i;
 	//+4 Cards
       for (i = 0; i < 4; i++)
@@ -727,7 +724,7 @@ int council_roomFunc(struct gameState *state, int handPos){
       state->numBuys++;
 			
       //Each other player draws a card
-      for (i = 0; i < (state->numPlayers)-1; i++)
+      for (i = 0; i < (state->numPlayers); i++)
 	{
 		drawCard(i, state);
 		/*
@@ -813,7 +810,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //put played card in played card pile
       discardCard(handPos, currentPlayer, state, 0);
 			*/
-      return council_roomFunc(state,handPos);
+      return council_roomFunc(currentPlayer, state,handPos);
 			
     case feast:
       //gain card with cost up to 5
@@ -943,7 +940,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //discard card from hand
       discardCard(handPos, currentPlayer, state, 0);
 	  */
-      return smithyFunc(state, handPos);
+      return smithyFunc(currentPlayer, state, handPos);
 		
     case village:
       //+1 Card
@@ -1018,7 +1015,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //discard card from hand
       discardCard(handPos, currentPlayer, state, 0);
 	  */
-      return great_hallFunc(state,handPos);
+      return great_hallFunc(currentPlayer, state,handPos);
 		
     case minion:
       //+1 action
@@ -1271,7 +1268,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //discard card
       discardCard(handPos, currentPlayer, state, 0);
 	  */
-      return outpostFunc(state, handPos);
+      return outpostFunc(currentPlayer, state, handPos);
 		
     case salvager:
       //+1 buy
