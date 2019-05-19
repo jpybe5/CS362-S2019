@@ -6,29 +6,33 @@ rngs.o: rngs.h rngs.c
 dominion.o: dominion.h dominion.c rngs.o
 	gcc -c dominion.c -g  $(CFLAGS)
 
-playdom: dominion.o playdom.c
-	gcc -o playdom playdom.c -g dominion.o rngs.o $(CFLAGS)
-#To run playdom you need to entere: ./playdom <any integer number> like ./playdom 10*/
-testDrawCard: testDrawCard.c dominion.o rngs.o
-	gcc  -o testDrawCard -g  testDrawCard.c dominion.o rngs.o $(CFLAGS)
+randomtestresults: randomtest1 randomtest2 randomtest3
+	gcov -f -b dominion.c >> randomtestresults.out
+	cat dominion.c.gcov >> randomtestresults.out
+	
+randomtest1: randomtestadventurer.c  dominion.o rngs.o
+	gcc -o randomtestadventurer_1 -g  randomtestadventurer.c dominion.o rngs.o $(CFLAGS)
+	./randomtestadventurer_1 &> randomtestresults.out	
+	
+randomtest2: randomtestcard1.c  dominion.o rngs.o
+	gcc -o randomtestcard1_1 -g  randomtestcard1.c dominion.o rngs.o $(CFLAGS)
+	./randomtestcard1_1 >> randomtestresults.out
 
-badTestDrawCard: badTestDrawCard.c dominion.o rngs.o
-	gcc -o badTestDrawCard -g  badTestDrawCard.c dominion.o rngs.o $(CFLAGS)
+randomtest3: randomtestcard2.c  dominion.o rngs.o
+	gcc -o randomtestcard2_1 -g  randomtestcard2.c dominion.o rngs.o $(CFLAGS)
+	./randomtestcard2_1 >> randomtestresults.out	
 
-testBuyCard: testDrawCard.c dominion.o rngs.o
-	gcc -o testDrawCard -g  testDrawCard.c dominion.o rngs.o $(CFLAGS)
+unittestresults: unittest1 unittest2 unittest3 unittest4 cardtest1
+	gcov -f -b dominion.c >> unittestresults.out
+	cat dominion.c.gcov >> unittestresults.out
+	
+unittest1: unittest1.c  dominion.o rngs.o
+	gcc -o unittest1_1 -g  unittest1.c dominion.o rngs.o $(CFLAGS)
+	./unittest1_1 &> unittestresults.out
 
-testAll: dominion.o testSuite.c
-	gcc -o testSuite testSuite.c -g  dominion.o rngs.o $(CFLAGS)
-
-interface.o: interface.h interface.c
-	gcc -c interface.c -g  $(CFLAGS)
-
-runtests: testDrawCard 
-	./testDrawCard &> unittestresult.out
-	gcov dominion.c >> unittestresult.out
-	cat dominion.c.gcov >> unittestresult.out
-
+unittest2: unittest2.c  dominion.o rngs.o
+	gcc -o unittest2_1 -g  unittest2.c dominion.o rngs.o $(CFLAGS)
+	./unittest2_1 >> unittestresults.out
 
 player: player.c interface.o
 	gcc -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)

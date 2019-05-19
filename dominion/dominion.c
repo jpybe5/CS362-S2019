@@ -643,8 +643,8 @@ int getCost(int cardNumber)
   return -1;
 }
 
-int adventurerFunc(struct gameState *state){
-	int currentPlayer = whoseTurn(state);
+int adventurerFunc(int player, struct gameState *state){
+	int currentPlayer = player;
 	int nextPlayer = currentPlayer + 1;
 
 	int temphand[MAX_HAND];// moved above the if statement
@@ -676,8 +676,8 @@ int adventurerFunc(struct gameState *state){
 	return 0;
 }
 
-int smithyFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
+int smithyFunc(int currentPlayer, struct gameState *state, int handPos){
+	//int currentPlayer = whoseTurn(state);
 	int i;
 	for (i = 0; i < 3; i++)
 	{
@@ -686,7 +686,7 @@ int smithyFunc(struct gameState *state, int handPos){
 			
       //discard card from hand
 	  //bug#2
-     //discardCard(handPos, currentPlayer, state, 0);
+     discardCard(handPos, currentPlayer, state, 0);
 	 return 0;
 }
 
@@ -714,8 +714,8 @@ int great_hallFunc(struct gameState *state, int handPos){
 	  return 0;
 }
 
-int council_roomFunc(struct gameState *state, int handPos){
-	int currentPlayer = whoseTurn(state);
+int council_roomFunc(int currentPlayer, struct gameState *state, int handPos){
+	//int currentPlayer = whoseTurn(state);
 	int i;
 	//+4 Cards
       for (i = 0; i < 4; i++)
@@ -727,15 +727,15 @@ int council_roomFunc(struct gameState *state, int handPos){
       state->numBuys++;
 			
       //Each other player draws a card
-      for (i = 0; i < (state->numPlayers)-1; i++)
+      for (i = 0; i < (state->numPlayers); i++)
 	{
-		drawCard(i, state);
-		/*
+		//drawCard(i, state);
+		
 	  if ( i != currentPlayer )
 	    {
 	      drawCard(i, state);
 	    }
-		*/
+		
 	}
 			
       //put played card in played card pile
@@ -788,7 +788,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	z=z-1;
       }
 	  */
-      return adventurerFunc(state);
+      return adventurerFunc(currentPlayer, state);
 			
     case council_room:
 	/*
@@ -813,7 +813,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //put played card in played card pile
       discardCard(handPos, currentPlayer, state, 0);
 			*/
-      return council_roomFunc(state,handPos);
+      return council_roomFunc(currentPlayer, state,handPos);
 			
     case feast:
       //gain card with cost up to 5
@@ -943,7 +943,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       //discard card from hand
       discardCard(handPos, currentPlayer, state, 0);
 	  */
-      return smithyFunc(state, handPos);
+      return smithyFunc(currentPlayer, state, handPos);
 		
     case village:
       //+1 Card
