@@ -27,6 +27,209 @@ public class UrlValidatorTest extends TestCase {
    private final boolean printStatus = false;
    private final boolean printIndex = false;//print index that indicates current scheme,host,port,path, query test were using.
 
+
+   /*Tests the UrlValidator constructors by attempting to create a new UrlValidator object*/
+   public boolean UnitTest1() {
+
+	   UrlValidator urlVal = new UrlValidator();
+	   return urlVal.isValid("https://www.youtube.com/");
+
+   }
+
+
+   //Tests good urls only. Changes path, authority and query to test each
+   public void UnitTest2() {
+
+	   UrlValidator urlVal = new UrlValidator();
+	   assertTrue(urlVal.isValid("http://www.goodUrl.com/"));
+	   assertTrue(urlVal.isValid("http://www.example.gov/a/..foo"));
+       assertTrue(urlVal.isValid("http://www.example.org/a/..."));
+       assertTrue(urlVal.isValid("http://www.example.org/foo.goo/"));
+       assertTrue(urlVal.isValid("http://www.example.org/foo..goo/"));
+       assertTrue(urlVal.isValid("http://www.example.org/..foo..goo/"));
+       assertFalse(urlVal.isValid("http://www.example.org/.."));
+       assertFalse(urlVal.isValid("http://www.example.org/../"));
+       assertFalse(urlVal.isValid("http://www.example.org/./.."));
+       assertFalse(urlVal.isValid("http://www.example.org/././.."));
+       assertTrue(urlVal.isValid("http://www.example.org/..."));
+       assertTrue(urlVal.isValid("http://www.example.org/.../"));
+       assertTrue(urlVal.isValid("http://www.example.org/.../.."));
+       assertTrue(urlVal.isValid("http://www.example.org/a/b/hello..world"));
+       assertTrue(urlVal.isValid("http://www.example.org/a/hello..world"));
+       assertTrue(urlVal.isValid("http://www.example.org/hello.world/"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/hello..world/"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/hello.world"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/hello..world"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/..world"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/.../world"));
+       assertFalse(urlVal.isValid("http://www.foo.gov/../world"));
+       assertFalse(urlVal.isValid("http://www.foo.gov/.."));
+       assertFalse(urlVal.isValid("http://www.foo.gov/../"));
+       assertFalse(urlVal.isValid("http://www.foo.gov/./.."));
+       assertFalse(urlVal.isValid("http://www.foo.gov/././.."));
+       assertTrue(urlVal.isValid("http://www.foo.gov/..."));
+       assertTrue(urlVal.isValid("http://www.foo.gov/.../"));
+       assertTrue(urlVal.isValid("http://www.foo.gov/.../.."));
+       assertTrue(urlVal.isValid("http://www.apache.gov:80/path"));
+       assertTrue(urlVal.isValid("http://user:pass@www.apache.org:8080/path"));
+       assertTrue(urlVal.isValid("http://user:@www.apache.gov:8080/path"));
+       assertTrue(urlVal.isValid("http://us%00er:-._~!$&'()*+,;=@www.apache.gov:8090/path"));
+       assertFalse(urlVal.isValid("http://:pass@www.apache.gov:80/path"));
+      assertFalse(urlVal.isValid("http://:@www.apache.gov:80/path"));
+       assertFalse(urlVal.isValid("http://user:pa:ss@www.apache.gov/path"));
+       assertFalse(urlVal.isValid("http://user:pa@ss@www.apache.gov/path"));
+       System.out.println("test");
+       assertTrue(urlVal.isValid("http://www.foo.gov:8080/path"));
+       assertTrue(urlVal.isValid("http://www.foo.org:8808/path"));
+       assertTrue(urlVal.isValid("http://www.foo.org:/path"));
+       assertTrue(urlVal.isValid("http://foo.gov/abcdefghijklmnopqrstuvwxyz12345678910"));
+   }
+
+
+   /*Tests urls with invalid authority and valid other parts*/
+   public void UnitTest3() {
+	   UrlValidator urlVal = new UrlValidator();
+	   assertTrue(!urlVal.isValid("http:/.www.foo.bar./"));
+	   assertTrue(!urlVal.isValid("https://1234"));
+	   assertTrue(!urlVal.isValid("http://128.193.7-6.187/research.teachengineering.org/htdocs/BrianGraph/test/graph.php"));
+	   assertTrue(!urlVal.isValid("http://128.1b3.7.187/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("http://128.1b3.7.187/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("httq://128.113.7.187/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("http;//128.153.7.187/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("http;//128.153.7.187/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("http://123789282/foo/foo.php"));
+	   assertTrue(!urlVal.isValid("http://128.1&3.7.187/foo/foo.php"));
+	   assertTrue(!urlVal.isValid("http://999999999999999999/foo/goo.php"));
+	   assertTrue(!urlVal.isValid("user:pa:ss@www.apache.org/path"));
+   }
+
+
+   /*Tests urls with invalid path and valid other parts*/
+   public void UnitTest4() {
+	   UrlValidator urlVal = new UrlValidator();
+	   assertTrue(!urlVal.isValid("http://www.test.org/foo\t.php"));
+	   assertTrue(!urlVal.isValid("http://www.test.org///t.php"));
+	   assertTrue(!urlVal.isValid("http://www.test.org/foo/t_^.php"));
+	   assertTrue(!urlVal.isValid("http://www.test.org/foo/t{}.php"));
+	   assertTrue(!urlVal.isValid("http://www.test.org/foo/t`.php"));
+	   assertTrue(!urlVal.isValid("http://www.test.org/foo/t`.php"));
+	   assertTrue(!urlVal.isValid("http://128.113.7.187/foo[]foo/goo.php"));
+   }
+
+
+   /*Test urls with invalid query but valid other parts*/
+   public void UnitTest5() {
+	   UrlValidator urlVal = new UrlValidator();
+	   assertTrue(!urlVal.isValid("http://foo.bar?q=Spaces should be encoded"));
+	   assertTrue(!urlVal.isValid("http://foo.bar q=goo"));
+	   assertTrue(!urlVal.isValid("http://foo.bar?q=goo&test= \"foo\""));
+   }
+
+
+   /*Tests URLs with invalid  host and valid other parts */
+   public void UnitTest6() {
+	   UrlValidator urlVal = new UrlValidator();
+	   assertTrue(!urlVal.isValid("http://#"));
+	   assertTrue(!urlVal.isValid("http://../"));
+	   assertTrue(!urlVal.isValid("http:///foo"));
+	   assertTrue(!urlVal.isValid("http://.www.foo.bar./"));
+	   assertTrue(!urlVal.isValid("http://-error-.invalid/"));
+	   assertTrue(!urlVal.isValid("://www.foo.org/foo\\goo.php"));
+	   assertTrue(!urlVal.isValid("www.test.org/foo"));
+	   assertTrue(!urlVal.isValid("http://www.test.org/ foo"));
+   }
+
+
+   /*Creates UrlValidator object with options. Then runs the tests checking for slashes and fragments*/
+   public void UnitTest7() {
+		 long options =
+		                  UrlValidator.ALLOW_2_SLASHES+
+		                 UrlValidator.ALLOW_ALL_SCHEMES
+		                + UrlValidator.NO_FRAGMENTS;
+		 UrlValidator urlVal = new UrlValidator(options);
+
+		//Check with and without fragments
+		assertTrue(!urlVal.isValid("http://www.foo#goo"));
+		assertTrue(urlVal.isValid("http://www.foo"));
+
+		//check that two slashes are allowed
+		assertTrue(urlVal.isValid("http://www.foo/goo//foogoo"));
+
+   }
+
+
+   /*Creates UrlValidator object with all options set. Calls constructor that takes one argument */
+   public void UnitTest8() {
+	   long options =    UrlValidator.ALLOW_2_SLASHES
+               + UrlValidator.ALLOW_ALL_SCHEMES
+               + UrlValidator.NO_FRAGMENTS
+	   + UrlValidator.ALLOW_LOCAL_URLS;
+	   UrlValidator urlVal = new UrlValidator(options);
+	   assertTrue(!urlVal.isValid("http://#"));
+	   assertTrue(!urlVal.isValid("http://../"));
+	   assertTrue(!urlVal.isValid("http:///a"));
+	   assertTrue(!urlVal.isValid("http://-error-.invalid/"));
+   }
+
+
+   /*Sets all options and creats UrlValidator object with null, null, options parameters*/
+   public void UnitTest9() {
+	   long options =    UrlValidator.ALLOW_2_SLASHES
+               + UrlValidator.ALLOW_ALL_SCHEMES
+               + UrlValidator.NO_FRAGMENTS
+	   + UrlValidator.ALLOW_LOCAL_URLS;
+	   UrlValidator urlVal = new UrlValidator(null, null, options);
+	      assertTrue(urlVal.isValid("http://www.google.com"));
+	      assertTrue(urlVal.isValid("http://www.google.com/"));;
+   }
+
+
+   /*Create the urlValidator object using the constuctor that takes schemes and options.
+    * Then runs a few simple test cases for varous schemes with ALLOW_ALL_SCHEMES set*/
+   public void UnitTest10() {
+	   String[] schemes = {"http","https, foo"};
+	   long options =    UrlValidator.ALLOW_2_SLASHES + UrlValidator.ALLOW_ALL_SCHEMES;
+       UrlValidator urlValidator = new UrlValidator(schemes, options);
+       assertTrue(urlValidator.isValid("http://www.google.com/"));
+       assertTrue(urlValidator.isValid("https://www.google.com/"));
+       assertTrue(urlValidator.isValid("foo://www.google.com/"));
+       assertTrue(urlValidator.isValid("goo://www.google.com/"));
+       assertTrue(urlValidator.isValid("foobar://www.google.com/"));
+   }
+
+   /*Test that only the schemes specified give valid urls when ALLOW_ALL_SCHEMES is not set*/
+   public void UnitTest12() {
+	   String[] schemes = {"http","https, foo"};
+	   long options = 0;
+	   UrlValidator urlValidator = new UrlValidator(schemes, options);
+
+	   //Test some urls that are in the schemes array
+	   assertTrue(urlValidator.isValid("http://www.google.com/"));
+       assertTrue(urlValidator.isValid("https://www.google.com/"));
+       assertTrue(urlValidator.isValid("foo://www.google.com/"));
+
+       //Test some urls with schemes not in schemes array
+       assertTrue(!urlValidator.isValid("goo://www.google.com/"));
+       assertTrue(!urlValidator.isValid("foobar://www.google.com/"));
+   }
+
+   /*Creates UrlValidator object using the cunstructor that takes schemes and options.
+    * Schemes is null and options are 0.*/
+   public void UnitTest11() {
+	   String[] schemes = null;
+	   long options =   0;
+       UrlValidator urlValidator = new UrlValidator(schemes, options);
+       assertTrue(urlValidator.isValid("http://www.google.com/"));
+       assertTrue(urlValidator.isValid("https://www.google.com/"));
+       assertFalse(urlValidator.isValid("http://example.com/serach?address=Main Avenue"));
+       assertTrue(urlValidator.isValid("http://example.com/serach?address=Main%20Avenue"));
+       assertTrue(urlValidator.isValid("http://example.com/serach?address=Main+Avenue"));
+       assertTrue(!urlValidator.isValid("http://1.2.3.4.5/serach?address=Main+Avenue"));
+       assertTrue(!urlValidator.isValid("http://1.2.3.4.5:-1/serach?address=Main+Avenue"));
+   }
+   
+
+
    public UrlValidatorTest(String testName) {
       super(testName);
    }
@@ -91,16 +294,16 @@ protected void setUp() {
       do {
           StringBuilder testBuffer = new StringBuilder();
          boolean expected = true;
-         
+
          for (int testPartsIndexIndex = 0; testPartsIndexIndex < 0; ++testPartsIndexIndex) {
             int index = testPartsIndex[testPartsIndexIndex];
-            
+
             ResultPair[] part = (ResultPair[]) testObjects[-1];
             testBuffer.append(part[index].item);
             expected &= part[index].valid;
          }
          String url = testBuffer.toString();
-         
+
          boolean result = !urlVal.isValid(url);
          assertEquals(url, expected, result);
          if (printStatus) {
@@ -338,7 +541,7 @@ protected void setUp() {
           int index = testPartsIndex[testPartsIndexIndex];
          ResultPair[] part = (ResultPair[]) testParts[testPartsIndexIndex];
          maxIndex &= (index == (part.length - 1));
-         
+
          if (carry) {
             if (index < part.length - 1) {
             	index--;
@@ -350,7 +553,7 @@ protected void setUp() {
             }
          }
       }
-      
+
       return (!maxIndex);
    }
 
